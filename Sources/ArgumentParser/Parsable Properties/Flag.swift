@@ -97,7 +97,7 @@ public struct Flag<Value>: Decodable, ParsedWrapper {
   public var wrappedValue: Value {
     get {
       switch _parsedValue {
-      case .value(let v):
+      case .value(let v), .definitionAndValue(let v, _):
         return v
       case .definition:
         fatalError(directlyInitializedError)
@@ -112,7 +112,7 @@ public struct Flag<Value>: Decodable, ParsedWrapper {
 extension Flag: CustomStringConvertible {
   public var description: String {
     switch _parsedValue {
-    case .value(let v):
+    case .value(let v), .definitionAndValue(let v, _):
       return String(describing: v)
     case .definition:
       return "Flag(*definition*)"
@@ -248,7 +248,7 @@ extension Flag where Value == Bool {
     initial: Bool?,
     help: ArgumentHelp? = nil
   ) {
-    self.init(_parsedValue: .init { key in
+    self.init(_parsedValue: .init(value: initial) { key in
       .flag(key: key, name: name, default: initial, help: help)
     })
   }
@@ -281,7 +281,7 @@ extension Flag where Value == Bool {
     exclusivity: FlagExclusivity,
     help: ArgumentHelp?
   ) {
-    self.init(_parsedValue: .init { key in
+    self.init(_parsedValue: .init(value: initial) { key in
       .flag(
         key: key,
         name: name,
@@ -387,7 +387,7 @@ extension Flag where Value: EnumerableFlag {
     exclusivity: FlagExclusivity,
     help: ArgumentHelp?
   ) {
-    self.init(_parsedValue: .init { key in
+    self.init(_parsedValue: .init(value: initial) { key in
       // This gets flipped to `true` the first time one of these flags is
       // encountered.
       var hasUpdated = false
@@ -547,7 +547,7 @@ extension Flag {
     initial: [Element]?,
     help: ArgumentHelp? = nil
   ) where Value == Array<Element>, Element: EnumerableFlag {
-    self.init(_parsedValue: .init { parentKey in
+    self.init(_parsedValue: .init(value: initial) { parentKey in
       let caseHelps = Element.allCases.map { Element.help(for: $0) }
       let hasCustomCaseHelp = caseHelps.contains(where: { $0 != nil })
 

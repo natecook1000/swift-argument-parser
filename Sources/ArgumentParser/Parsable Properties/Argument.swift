@@ -71,7 +71,7 @@ public struct Argument<Value>:
   public var wrappedValue: Value {
     get {
       switch _parsedValue {
-      case .value(let v):
+      case .value(let v), .definitionAndValue(let v, _):
         return v
       case .definition:
         fatalError(directlyInitializedError)
@@ -86,7 +86,7 @@ public struct Argument<Value>:
 extension Argument: CustomStringConvertible {
   public var description: String {
     switch _parsedValue {
-    case .value(let v):
+    case .value(let v), .definitionAndValue(let v, _):
       return String(describing: v)
     case .definition:
       return "Argument(*definition*)"
@@ -310,7 +310,7 @@ extension Argument where Value: ExpressibleByArgument {
     help: ArgumentHelp? = nil,
     completion: CompletionKind? = nil
   ) {
-    self.init(_parsedValue: .init { key in
+    self.init(_parsedValue: .init(value: wrappedValue) { key in
       let arg = ArgumentDefinition(
         container: Bare<Value>.self,
         key: key,
@@ -379,7 +379,7 @@ extension Argument {
     completion: CompletionKind? = nil,
     transform: @escaping (String) throws -> Value
   ) {
-    self.init(_parsedValue: .init { key in
+    self.init(_parsedValue: .init(value: wrappedValue) { key in
       let arg = ArgumentDefinition(
         container: Bare<Value>.self,
         key: key,
@@ -465,7 +465,7 @@ extension Argument {
     help: ArgumentHelp? = nil,
     completion: CompletionKind? = nil
   ) where T: ExpressibleByArgument, Value == Optional<T> {
-    self.init(_parsedValue: .init { key in
+    self.init(_parsedValue: .init(value: _wrappedValue) { key in
       let arg = ArgumentDefinition(
         container: Optional<T>.self,
         key: key,
@@ -548,7 +548,7 @@ extension Argument {
     completion: CompletionKind? = nil,
     transform: @escaping (String) throws -> T
   ) where Value == Optional<T> {
-    self.init(_parsedValue: .init { key in
+    self.init(_parsedValue: .init(value: _wrappedValue) { key in
       let arg = ArgumentDefinition(
         container: Optional<T>.self,
         key: key,
@@ -610,7 +610,7 @@ extension Argument {
     help: ArgumentHelp? = nil,
     completion: CompletionKind? = nil
   ) where T: ExpressibleByArgument, Value == Array<T> {
-    self.init(_parsedValue: .init { key in
+    self.init(_parsedValue: .init(value: wrappedValue) { key in
       let arg = ArgumentDefinition(
         container: Array<T>.self,
         key: key,
@@ -679,7 +679,7 @@ extension Argument {
     completion: CompletionKind? = nil,
     transform: @escaping (String) throws -> T
   ) where Value == Array<T> {
-    self.init(_parsedValue: .init { key in
+    self.init(_parsedValue: .init(value: wrappedValue) { key in
       let arg = ArgumentDefinition(
         container: Array<T>.self,
         key: key,

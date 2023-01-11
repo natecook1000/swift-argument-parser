@@ -16,9 +16,14 @@ enum Parsed<Value> {
   /// an implementation detail.
   case value(Value)
   case definition((InputKey) -> ArgumentSet)
+  case definitionAndValue(Value, (InputKey) -> ArgumentSet)
   
-  internal init(_ makeSet: @escaping (InputKey) -> ArgumentSet) {
-    self = .definition(makeSet)
+  internal init(value: Value? = nil, _ makeSet: @escaping (InputKey) -> ArgumentSet) {
+    if let value = value {
+      self = .definitionAndValue(value, makeSet)
+    } else {
+      self = .definition(makeSet)
+    }
   }
 }
 
@@ -57,7 +62,7 @@ extension ParsedWrapper {
     switch _parsedValue {
     case .value:
       fatalError("Trying to get the argument set from a resolved/parsed property.")
-    case .definition(let a):
+    case .definition(let a), .definitionAndValue(_, let a):
       return a(key)
     }
   }

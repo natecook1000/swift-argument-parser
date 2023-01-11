@@ -50,6 +50,12 @@ extension DefaultsEndToEndTests {
       XCTAssertEqual(foo.max, 5)
     }
   }
+  
+  func testDefaultInitialization() throws {
+    let foo = Foo()
+    XCTAssertEqual(foo.name.rawValue, "A")
+    XCTAssertEqual(foo.max, 3)
+  }
 }
 
 // MARK: -

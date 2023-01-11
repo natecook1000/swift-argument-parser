@@ -92,7 +92,7 @@ public struct OptionGroup<Value: ParsableArguments>: Decodable, ParsedWrapper {
   public var wrappedValue: Value {
     get {
       switch _parsedValue {
-      case .value(let v):
+      case .value(let v), .definitionAndValue(let v, _):
         return v
       case .definition:
         fatalError(directlyInitializedError)
@@ -107,7 +107,7 @@ public struct OptionGroup<Value: ParsableArguments>: Decodable, ParsedWrapper {
 extension OptionGroup: CustomStringConvertible {
   public var description: String {
     switch _parsedValue {
-    case .value(let v):
+    case .value(let v), .definitionAndValue(let v, _):
       return String(describing: v)
     case .definition:
       return "OptionGroup(*definition*)"
