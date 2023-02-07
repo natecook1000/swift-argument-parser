@@ -160,6 +160,257 @@ extension ArgumentSet {
   }
 }
 
+struct LenientParser {
+  var command: ParsableCommand.Type
+  var argumentSet: ArgumentSet
+  var inputArguments: SplitArguments
+  
+  init(_ command: ParsableCommand.Type, _ split: SplitArguments) {
+    self.command = command
+    self.argumentSet = ArgumentSet(command, visibility: .private, parent: nil)
+    self.inputArguments = split
+  }
+  
+  var defaultCapturesForPassthrough: Bool {
+    command.defaultIncludesPassthroughArguments
+  }
+  
+  var subcommands: [ParsableCommand.Type] {
+    command.configuration.subcommands
+  }
+  
+  mutating func parseValue(
+    _ argument: ArgumentDefinition,
+    _ parsed: ParsedArgument,
+    _ originElement: InputOrigin.Element,
+    _ update: ArgumentDefinition.Update.Unary,
+    _ result: inout ParsedValues,
+    _ usedOrigins: inout InputOrigin
+  ) throws {
+    let origin = InputOrigin(elements: [originElement])
+    switch argument.parsingStrategy {
+    case .default:
+      // We need a value for this option.
+      if let value = parsed.value {
+        // This was `--foo=bar` style:
+        try update(origin, parsed.name, value, &result)
+        usedOrigins.formUnion(origin)
+      } else if argument.allowsJoinedValue,
+         let (origin2, value) = inputArguments.extractJoinedElement(at: originElement)
+      {
+        // Found a joined argument
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, String(value), &result)
+        usedOrigins.formUnion(origins)
+      } else if let (origin2, value) = inputArguments.popNextElementIfValue(after: originElement) {
+        // Use `popNextElementIfValue(after:)` to handle cases where short option
+        // labels are combined
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, value, &result)
+        usedOrigins.formUnion(origins)
+      } else {
+        throw ParserError.missingValueForOption(origin, parsed.name)
+      }
+      
+    case .scanningForValue:
+      // We need a value for this option.
+      if let value = parsed.value {
+        // This was `--foo=bar` style:
+        try update(origin, parsed.name, value, &result)
+        usedOrigins.formUnion(origin)
+      } else if argument.allowsJoinedValue,
+          let (origin2, value) = inputArguments.extractJoinedElement(at: originElement) {
+        // Found a joined argument
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, String(value), &result)
+        usedOrigins.formUnion(origins)
+      } else if let (origin2, value) = inputArguments.popNextValue(after: originElement) {
+        // Use `popNext(after:)` to handle cases where short option
+        // labels are combined
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, value, &result)
+        usedOrigins.formUnion(origins)
+      } else {
+        throw ParserError.missingValueForOption(origin, parsed.name)
+      }
+      
+    case .unconditional:
+      // Use an attached value if it exists...
+      if let value = parsed.value {
+        // This was `--foo=bar` style:
+        try update(origin, parsed.name, value, &result)
+        usedOrigins.formUnion(origin)
+      } else if argument.allowsJoinedValue,
+          let (origin2, value) = inputArguments.extractJoinedElement(at: originElement) {
+        // Found a joined argument
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, String(value), &result)
+        usedOrigins.formUnion(origins)
+      } else {
+        guard let (origin2, value) = inputArguments.popNextElementAsValue(after: originElement) else {
+          throw ParserError.missingValueForOption(origin, parsed.name)
+        }
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, value, &result)
+        usedOrigins.formUnion(origins)
+      }
+      
+    case .allRemainingInput:
+      // Reset initial value with the found input origins:
+      try argument.initial(origin, &result)
+      
+      // Use an attached value if it exists...
+      if let value = parsed.value {
+        // This was `--foo=bar` style:
+        try update(origin, parsed.name, value, &result)
+        usedOrigins.formUnion(origin)
+      } else if argument.allowsJoinedValue,
+          let (origin2, value) = inputArguments.extractJoinedElement(at: originElement) {
+        // Found a joined argument
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, String(value), &result)
+        usedOrigins.formUnion(origins)
+        inputArguments.removeAll(in: usedOrigins)
+      }
+      
+      // ...and then consume the rest of the arguments
+      while let (origin2, value) = inputArguments.popNextElementAsValue(after: originElement) {
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, value, &result)
+        usedOrigins.formUnion(origins)
+      }
+      
+    case .upToNextOption:
+      // Use an attached value if it exists...
+      if let value = parsed.value {
+        // This was `--foo=bar` style:
+        try update(origin, parsed.name, value, &result)
+        usedOrigins.formUnion(origin)
+      } else if argument.allowsJoinedValue,
+          let (origin2, value) = inputArguments.extractJoinedElement(at: originElement) {
+        // Found a joined argument
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, String(value), &result)
+        usedOrigins.formUnion(origins)
+        inputArguments.removeAll(in: usedOrigins)
+      }
+      
+      // Clear out the initial origin first, since it can include
+      // the exploded elements of an options group (see issue #327).
+      usedOrigins.formUnion(origin)
+      inputArguments.removeAll(in: origin)
+      
+      // Fix incorrect error message
+      // for @Option array without values (see issue #434).
+      guard let first = inputArguments.elements.first,
+            first.isValue
+      else {
+        throw ParserError.missingValueForOption(origin, parsed.name)
+      }
+      
+      // ...and then consume the arguments until hitting an option
+      while let (origin2, value) = inputArguments.popNextElementIfValue() {
+        let origins = origin.inserting(origin2)
+        try update(origins, parsed.name, value, &result)
+        usedOrigins.formUnion(origins)
+      }
+      
+    case .postTerminator, .allUnrecognized:
+      // These parsing kinds are for arguments only.
+      throw ParserError.invalidState
+    }
+  }
+  
+  mutating func parse() throws -> ParsedValues {
+    // If this argument set includes a positional argument that unconditionally
+    // captures all remaining input, we use a different behavior, where we
+    // shortcut out at the first sign of a positional argument or unrecognized
+    // option/flag label.
+    let capturesForPassthrough = defaultCapturesForPassthrough || argumentSet.contains(where: { arg in
+      arg.isRepeatingPositional && arg.parsingStrategy == .allRemainingInput
+    })
+    
+    var result = ParsedValues(elements: [:], originalInput: inputArguments.originalInput)
+    var allUsedOrigins = InputOrigin()
+    
+    try argumentSet.setInitialValues(into: &result)
+    
+    // Loop over all arguments:
+    ArgumentLoop:
+    while let (origin, next) = inputArguments.popNext() {
+      var usedOrigins = InputOrigin()
+      defer {
+        inputArguments.removeAll(in: usedOrigins)
+        allUsedOrigins.formUnion(usedOrigins)
+      }
+      
+      switch next.value {
+      case .value(let argument):
+        // Special handling for matching subcommand names. We generally want
+        // parsing to skip over unrecognized input, but if the current
+        // command or the matched subcommand captures all remaining input,
+        // then we want to break out of parsing at this point.
+        if let matchedSubcommand = subcommands.first(where: { $0._commandName == argument }) {
+          if !matchedSubcommand.includesPassthroughArguments && defaultCapturesForPassthrough {
+            continue ArgumentLoop
+          } else if matchedSubcommand.includesPassthroughArguments {
+            break ArgumentLoop
+          }
+        }
+        
+        // If we're capturing all, the first positional value represents the
+        // start of positional input.
+        if capturesForPassthrough { break ArgumentLoop }
+        // We'll parse positional values later.
+        break
+      case let .option(parsed):
+        // Look for an argument that matches this `--option` or `-o`-style
+        // input. If we can't find one, just move on to the next input. We
+        // defer catching leftover arguments until we've fully extracted all
+        // the information for the selected command.
+        guard let argument = argumentSet.first(matching: parsed) else
+        {
+          // If we're capturing all, an unrecognized option/flag is the start
+          // of positional input. However, the first time we see an option
+          // pack (like `-fi`) it looks like a long name with a single-dash
+          // prefix, which may not match an argument even if its subcomponents
+          // will match.
+          if capturesForPassthrough && parsed.subarguments.isEmpty { break ArgumentLoop }
+          
+          // Otherwise, continue parsing. This option/flag may get picked up
+          // by a child command.
+          continue
+        }
+        
+        switch argument.update {
+        case let .nullary(update):
+          // We don’t expect a value for this option.
+          guard parsed.value == nil else {
+            throw ParserError.unexpectedValueForOption(origin, parsed.name, parsed.value!)
+          }
+          try update([origin], parsed.name, &result)
+          usedOrigins.insert(origin)
+        case let .unary(update):
+          try parseValue(argument, parsed, origin, update, &result, &usedOrigins)
+        }
+      case .terminator:
+        // Ignore the terminator, it might get picked up as a positional value later.
+        break
+      }
+    }
+    
+    // We have parsed all non-positional values at this point.
+    // Next: parse / consume the positional values.
+//    var unusedArguments = input
+//    unusedArguments.removeAll(in: allUsedOrigins)
+//    try parsePositionalValues(from: inputArguments, into: &result)
+
+    return result
+
+  }
+}
+
+
 // MARK: - Parsing from SplitArguments
 extension ArgumentSet {
   /// Parse the given input for this set of defined arguments.
@@ -172,11 +423,11 @@ extension ArgumentSet {
   /// - Parameter input: The input that needs to be parsed.
   /// - Parameter subcommands: Any subcommands of the current command.
   /// - Parameter defaultCapturesAll: `true` if the default subcommand has an
-  ///   argument that captures all remaining input.
+  ///   argument that captures all remaining input for passthrough.
   func lenientParse(
     _ input: SplitArguments,
     subcommands: [ParsableCommand.Type],
-    defaultCapturesAll: Bool
+    defaultCapturesForPassthrough: Bool
   ) throws -> ParsedValues {
     // Create a local, mutable copy of the arguments:
     var inputArguments = input
@@ -327,7 +578,7 @@ extension ArgumentSet {
     // captures all remaining input, we use a different behavior, where we
     // shortcut out at the first sign of a positional argument or unrecognized
     // option/flag label.
-    let capturesAll = defaultCapturesAll || self.contains(where: { arg in
+    let capturesForPassthrough = defaultCapturesForPassthrough || self.contains(where: { arg in
       arg.isRepeatingPositional && arg.parsingStrategy == .allRemainingInput
     })
     
@@ -352,16 +603,16 @@ extension ArgumentSet {
         // command or the matched subcommand captures all remaining input,
         // then we want to break out of parsing at this point.
         if let matchedSubcommand = subcommands.first(where: { $0._commandName == argument }) {
-          if !matchedSubcommand.includesUnconditionalArguments && defaultCapturesAll {
+          if !matchedSubcommand.includesPassthroughArguments && defaultCapturesForPassthrough {
             continue ArgumentLoop
-          } else if matchedSubcommand.includesUnconditionalArguments {
+          } else if matchedSubcommand.includesPassthroughArguments {
             break ArgumentLoop
           }
         }
         
         // If we're capturing all, the first positional value represents the
         // start of positional input.
-        if capturesAll { break ArgumentLoop }
+        if capturesForPassthrough { break ArgumentLoop }
         // We'll parse positional values later.
         break
       case let .option(parsed):
@@ -376,7 +627,7 @@ extension ArgumentSet {
           // pack (like `-fi`) it looks like a long name with a single-dash
           // prefix, which may not match an argument even if its subcomponents
           // will match.
-          if capturesAll && parsed.subarguments.isEmpty { break ArgumentLoop }
+          if capturesForPassthrough && parsed.subarguments.isEmpty { break ArgumentLoop }
           
           // Otherwise, continue parsing. This option/flag may get picked up
           // by a child command.
@@ -403,7 +654,7 @@ extension ArgumentSet {
     // We have parsed all non-positional values at this point.
     // Next: parse / consume the positional values.
     var unusedArguments = input
-    unusedArguments.removeAll(in: allUsedOrigins)
+    unusedArguments.removeAll(in: allUsedOrigins)    
     try parsePositionalValues(from: unusedArguments, into: &result)
 
     return result

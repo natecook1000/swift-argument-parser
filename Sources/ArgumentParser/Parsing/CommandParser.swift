@@ -146,8 +146,15 @@ extension CommandParser {
     let values = try commandArguments.lenientParse(
       split,
       subcommands: currentNode.element.configuration.subcommands,
-      defaultCapturesAll: currentNode.element.defaultIncludesUnconditionalArguments)
+      defaultCapturesForPassthrough: currentNode.element.defaultIncludesPassthroughArguments)
 
+    if currentNode.element.includesAllUnrecognizedArgument {
+      // If this command includes an all-unrecognized argument, any built-in
+      // flags will have been parsed into that argument. Check for flags
+      // before decoding.
+      try checkForBuiltInFlags(split)
+    }
+    
     // Decode the values from ParsedValues into the ParsableCommand:
     let decoder = ArgumentDecoder(values: values, previouslyDecoded: decodedArguments)
     var decodedResult: ParsableCommand

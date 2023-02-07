@@ -22,7 +22,15 @@ struct Repeat: ParsableCommand {
     @Argument(help: "The phrase to repeat.")
     var phrase: String
 
+    @Flag(name: .customShort("h"))
+    var helpOverride: Bool = false
+  
+    @Argument(parsing: .allUnrecognized)
+    var leftovers: [String] = []
+
     mutating func run() throws {
+        print(helpOverride)
+      
         let repeatCount = count ?? 2
 
         for i in 1...repeatCount {
