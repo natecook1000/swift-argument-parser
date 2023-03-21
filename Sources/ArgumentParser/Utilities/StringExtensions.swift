@@ -243,3 +243,60 @@ extension StringProtocol where SubSequence == Substring {
     isEmpty ? nil : self
   }
 }
+
+extension Substring {
+  fileprivate mutating func eat() -> Character? {
+    self.popFirst()
+  }
+  
+  fileprivate mutating func eat(_ ch: Character) -> Character? {
+    guard self.first == ch else { return nil }
+    return self.popFirst()
+  }
+}
+
+extension StringProtocol where SubSequence == Substring {
+  func tokenized() throws -> [String] {
+    var slice = self[...]
+    var result: [String] = []
+    var quoteDelimiter: Character? = nil
+    var currentSubstring = ""
+    
+    while let ch = slice.eat() {
+      switch (ch, quoteDelimiter) {
+      case ("\\", _):
+        guard let nextCh = slice.eat() else {
+          // FIXME: specific error
+          throw ParserError.invalidState
+        }
+        if quoteDelimiter != nil {
+          currentSubstring.append(ch)
+        }
+        currentSubstring.append(nextCh)
+      case (quoteDelimiter, _):
+        quoteDelimiter = nil
+      case (" ", nil), ("\t", nil):
+        // Skip multiple consecutive delimiters
+        if !currentSubstring.isEmpty {
+          result.append(currentSubstring)
+          currentSubstring = ""
+        }
+      case ("\"", nil), ("'", nil):
+        quoteDelimiter = ch
+      default:
+        currentSubstring.append(ch)
+      }
+    }
+    
+    guard quoteDelimiter == nil else {
+      // FIXME: specific error
+      throw ParserError.invalidState
+    }
+    
+    if !currentSubstring.isEmpty {
+      result.append(currentSubstring)
+    }
+    
+    return result
+  }
+}
