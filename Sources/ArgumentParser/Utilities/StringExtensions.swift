@@ -255,48 +255,76 @@ extension Substring {
   }
 }
 
-extension StringProtocol where SubSequence == Substring {
-  func tokenized() throws -> [String] {
-    var slice = self[...]
-    var result: [String] = []
-    var quoteDelimiter: Character? = nil
-    var currentSubstring = ""
-    
+func readTokens(
+  from source: () -> String?
+) -> [String] {
+  var result: [String] = []
+  var quoteDelimiter: Character? = nil
+  var currentSubstring = ""
+
+  GetLine:
+  while let str = source() {
+    var slice = str[...]
+
     while let ch = slice.eat() {
       switch (ch, quoteDelimiter) {
-      case ("\\", _):
+      case ("\\", nil):
+        // When NOT in quoted section, escape all quotes, newlines, spaces, and backslashes.
         guard let nextCh = slice.eat() else {
-          // FIXME: specific error
-          throw ParserError.invalidState
+          continue GetLine
         }
-        if quoteDelimiter != nil {
+        switch nextCh {
+        case " ", "\\", "\"", "'":
+          break
+        default:
           currentSubstring.append(ch)
         }
         currentSubstring.append(nextCh)
+        
+      case ("\\", let quoteDelimiter):
+        // When IN quoted section, escape closing quotes and backslashes.
+        guard let nextCh = slice.eat() else {
+          currentSubstring.append(ch)
+          continue GetLine
+        }
+        
+        switch nextCh {
+        case quoteDelimiter, "\\":
+          break
+        default:
+          currentSubstring.append(ch)
+        }
+        currentSubstring.append(nextCh)
+
       case (quoteDelimiter, _):
+        // End of quoted section.
         quoteDelimiter = nil
+        
       case (" ", nil), ("\t", nil):
-        // Skip multiple consecutive delimiters
+        // Unescaped whitespace - skip empty substrings.
         if !currentSubstring.isEmpty {
           result.append(currentSubstring)
           currentSubstring = ""
         }
+        
       case ("\"", nil), ("'", nil):
+        // Beginning of quoted section.
         quoteDelimiter = ch
+        
       default:
         currentSubstring.append(ch)
       }
     }
     
-    guard quoteDelimiter == nil else {
-      // FIXME: specific error
-      throw ParserError.invalidState
+    // If we've reached the end of a line and we aren't in a quoted section,
+    // break out of the parsing.
+    if quoteDelimiter == nil {
+      break
     }
-    
-    if !currentSubstring.isEmpty {
-      result.append(currentSubstring)
-    }
-    
-    return result
   }
+  
+  if !currentSubstring.isEmpty {
+    result.append(currentSubstring)
+  }
+  return result
 }

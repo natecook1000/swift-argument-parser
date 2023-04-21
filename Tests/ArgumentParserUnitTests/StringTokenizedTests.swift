@@ -14,53 +14,67 @@ import XCTest
 
 final class StringTokenizedTests: XCTestCase {}
 
-func _testTokens(_ input: String, _ expected: [String], file: StaticString = #file, line: UInt = #line) throws {
-  try XCTAssertEqual(input.tokenized(), expected, file: file, line: line)
+func _testTokens(_ input: [String], _ expected: [String], file: StaticString = #file, line: UInt = #line) {
+  var input: Array = input.reversed()
+  let result = readTokens {
+    input.popLast()
+  }
+  XCTAssertEqual(result, expected, file: file, line: line)
+}
+
+func _testTokens(_ input: String, _ expected: [String], file: StaticString = #file, line: UInt = #line) {
+  _testTokens([input], expected, file: file, line: line)
 }
 
 extension StringTokenizedTests {
   func testTokensSimple() throws {
-    try _testTokens(#""#, [])
-    try _testTokens(#"     "#, [])
-    try _testTokens(#"one"#, ["one"])
-    try _testTokens(#"      one      "#, ["one"])
-    try _testTokens(#"one two three"#, ["one", "two", "three"])
-    try _testTokens(#"   one two     three"#, ["one", "two", "three"])
-    try _testTokens(#"one two     three      "#, ["one", "two", "three"])
-    try _testTokens(#"one\ two three"#, ["one two", "three"])
-    try _testTokens(#"one two \  three"#, ["one", "two", " ", "three"])
-    try _testTokens(#"one \ \ two three\ \ "#, ["one", "  two", "three  "])
+    _testTokens(#""#, [])
+    _testTokens(#"     "#, [])
+    _testTokens(#"one"#, ["one"])
+    _testTokens(#"      one      "#, ["one"])
+    _testTokens(#"one two three"#, ["one", "two", "three"])
+    _testTokens(#"   one two     three"#, ["one", "two", "three"])
+    _testTokens(#"one two     three      "#, ["one", "two", "three"])
+    _testTokens(#"one\ two three"#, ["one two", "three"])
+    _testTokens(#"one two \  three"#, ["one", "two", " ", "three"])
+    _testTokens(#"one \ \ two three\ \ "#, ["one", "  two", "three  "])
   }
   
   func testTokensSingleQuotes() throws {
-    try _testTokens(#"one two 'three four'"#, ["one", "two", "three four"])
-    try _testTokens(#"one two 'three    four'"#, ["one", "two", "three    four"])
-    try _testTokens(#"one two \'three four"#, ["one", "two", #"'three"#, "four"])
-    try _testTokens(#"one two '\'three four'"#, ["one", "two", #"\'three four"#])
-    try _testTokens(#"one two 'three  "  four'"#, ["one", "two", #"three  "  four"#])
-    try _testTokens(#"one two three'  "  'four"#, ["one", "two", #"three  "  four"#])
-    try _testTokens(#"one two thr'ee  "  fo'ur"#, ["one", "two", #"three  "  four"#])
+    _testTokens(#"one two 'three four'"#, ["one", "two", "three four"])
+    _testTokens(#"one two 'three    four'"#, ["one", "two", "three    four"])
+    _testTokens(#"one two \'three four"#, ["one", "two", #"'three"#, "four"])
+    _testTokens(#"one two '\'three four'"#, ["one", "two", #"'three four"#])
+    _testTokens(#"one two '\"three four'"#, ["one", "two", #"\"three four"#])
+    _testTokens(#"one two 'three  "  four'"#, ["one", "two", #"three  "  four"#])
+    _testTokens(#"one two three'  "  'four"#, ["one", "two", #"three  "  four"#])
+    _testTokens(#"one two thr'ee  "  fo'ur"#, ["one", "two", #"three  "  four"#])
   }
   
   func testTokensDoubleQuotes() throws {
-    try _testTokens(#"one two "three four""#, ["one", "two", "three four"])
-    try _testTokens(#"one two "three    four""#, ["one", "two", "three    four"])
-    try _testTokens(#"one two \"three four"#, ["one", "two", #""three"#, "four"])
-    try _testTokens(#"one two "\"three four""#, ["one", "two", #"\"three four"#])
-    try _testTokens(#"one two "three  '  four""#, ["one", "two", #"three  '  four"#])
-    try _testTokens(#"one two three"  '  "four"#, ["one", "two", #"three  '  four"#])
-    try _testTokens(#"one two thr"ee  '  fo"ur"#, ["one", "two", #"three  '  four"#])
+    _testTokens(#"one two "three four""#, ["one", "two", "three four"])
+    _testTokens(#"one two "three    four""#, ["one", "two", "three    four"])
+    _testTokens(#"one two \"three four"#, ["one", "two", #""three"#, "four"])
+    _testTokens(#"one two "\"three four""#, ["one", "two", #""three four"#])
+    _testTokens(#"one two "\'three four""#, ["one", "two", #"\'three four"#])
+    _testTokens(#"one two "three  '  four""#, ["one", "two", #"three  '  four"#])
+    _testTokens(#"one two three"  '  "four"#, ["one", "two", #"three  '  four"#])
+    _testTokens(#"one two thr"ee  '  fo"ur"#, ["one", "two", #"three  '  four"#])
   }
   
   func testTokensEscapes() throws {
-    try _testTokens(#"one \a three"#, ["one", #"\a"#, "three"])
+    _testTokens(#"one \a three"#, ["one", #"\a"#, "three"])
+  }
+  
+  func testMultipleLines() throws {
+    
   }
 
-  func testTokenizedFails() {
+  func testTokenizedEdgeCases() throws {
     // Unterminated quotes
-    XCTAssertThrowsError(try #"one two "three"#.tokenized())
-    XCTAssertThrowsError(try #"one two 'three"#.tokenized())
+    _testTokens(#"one two "three"#, ["one", "two", "three"])
+    _testTokens(#"one two 'three"#, ["one", "two", "three"])
     // Backslash in last position
-    XCTAssertThrowsError(try #"one two three\"#.tokenized())
+    _testTokens(#"one two three\"#, ["one", "two", "three"])
   }
 }
