@@ -98,8 +98,7 @@ internal func ask<E: ExpressibleByArgument>(
   print(prompt, terminator: "")
 
   var result: [E] = []
-  let input = getInput() ?? ""
-  for str in input.components(separatedBy: " ") {
+  for str in readTokens(from: getInput) {
     guard let val = E(argument: str) else {
       print("Error: The type of '\(str)' is not \(E.self).\n")
       return ask(prompt, type: type)

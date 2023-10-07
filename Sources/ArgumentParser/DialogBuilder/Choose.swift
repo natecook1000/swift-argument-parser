@@ -49,8 +49,7 @@ internal func choose(
     var selected: [Int] = []
     print(prompt, terminator: "")
 
-    let nums = getInput()?.components(separatedBy: " ") ?? [""]
-    for num in nums {
+    for num in readTokens(from: getInput) {
       guard let index = Int(num) else {
         print("Error: '\(num)' is not a serial number.\n")
         selected.removeAll()
