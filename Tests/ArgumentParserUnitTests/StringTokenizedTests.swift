@@ -67,7 +67,24 @@ extension StringTokenizedTests {
   }
   
   func testMultipleLines() throws {
+    // Stop at line break
+    _testTokens([#"one two three"#, #"four"#], ["one", "two", "three"])
     
+    // Quoted sections include line breaks
+    _testTokens([#"one two 'three"#, #"four'"#], ["one", "two", "three\nfour"])
+    _testTokens([#"'one"#, #"two"#, #"three"#, #"four'"#], ["one\ntwo\nthree\nfour"])
+    _testTokens([#"'"#, #"one"#, #"two"#, #"three"#, #"four'"#], ["\none\ntwo\nthree\nfour"])
+    _testTokens([#"'one"#, #"two"#, #"three"#, #"four"#, #"'"#], ["one\ntwo\nthree\nfour\n"])
+    
+    // Escaped line breaks continue, but aren't included
+    _testTokens([#"one two three\"#, #"four'"#], ["one", "two", "threefour"])
+    _testTokens([#"one\"#, #"two\"#, #"three\"#, #"four'"#], ["onetwothreefour"])
+    _testTokens(
+      [#"\"#, #"one\"#, #"two\"#, #"three\"#, #"four"#, #"\"#, #"\"#],
+      ["onetwothreefour"])
+       
+    // Skip escaped line breaks even in a quoted section
+    _testTokens([#"one two 'three\"#, #"four'"#], ["one", "two", "threefour"])
   }
 
   func testTokenizedEdgeCases() throws {

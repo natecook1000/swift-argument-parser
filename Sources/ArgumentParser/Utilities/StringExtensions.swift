@@ -265,12 +265,18 @@ func readTokens(
   GetLine:
   while let str = source() {
     var slice = str[...]
-
+    
+    // Starting a new line mid-quoted section should include the newline in the token
+    if quoteDelimiter != nil {
+      currentSubstring.append("\n")
+    }
+    
     while let ch = slice.eat() {
       switch (ch, quoteDelimiter) {
       case ("\\", nil):
         // When NOT in quoted section, escape all quotes, newlines, spaces, and backslashes.
         guard let nextCh = slice.eat() else {
+          // Note: An escaped newline is not included in a token
           continue GetLine
         }
         switch nextCh {
