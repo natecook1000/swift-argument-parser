@@ -222,7 +222,6 @@ extension ArgumentSet {
   /// definition that matches the particular element.
   ///
   /// - Parameter parsed: The argument from the command line
-  ///
   /// - Returns: The matching definition.
   func first(
     matching parsed: ParsedArgument
@@ -241,8 +240,8 @@ extension ArgumentSet {
 /// command.
 ///
 /// This parser will consume only the arguments that it understands. If any
-/// arguments are declared to capture all remaining input, or a subcommand
-/// is configured as such, parsing stops on the first positional argument or
+/// arguments are declared to capture all remaining input, or a subcommand is
+/// configured as such, parsing stops on the first positional argument or
 /// unrecognized dash-prefixed argument.
 struct LenientParser {
   var command: ParsableCommand.Type

@@ -11,11 +11,12 @@
 
 /// A type that can be parsed from a program's command-line arguments.
 ///
-/// When you implement a `ParsableArguments` type, all properties must be declared with
-/// one of the four property wrappers provided by the `ArgumentParser` library.
+/// When you implement a `ParsableArguments` type, all properties must be
+/// declared with one of the four property wrappers provided by the
+/// `ArgumentParser` library.
 public protocol ParsableArguments: Decodable {
-  /// Creates an instance of this parsable type using the definitions
-  /// given by each property's wrapper.
+  /// Creates an instance of this parsable type using the definitions given by
+  /// each property's wrapper.
   init()
 
   /// Validates the properties of the instance after parsing.
@@ -28,7 +29,8 @@ public protocol ParsableArguments: Decodable {
   static var _errorLabel: String { get }
 }
 
-/// A type that provides the `ParsableCommand` interface to a `ParsableArguments` type.
+/// A type that provides the `ParsableCommand` interface to a
+/// `ParsableArguments` type.
 struct _WrappedParsableCommand<P: ParsableArguments>: ParsableCommand {
   static var _commandName: String {
     let name = String(describing: P.self).convertedToSnakeCase()
@@ -115,10 +117,9 @@ extension ParsableArguments {
   ///
   /// - Parameters:
   ///   - error: An error to generate a message for.
-  ///   - columns: The column width to use when wrapping long line in the
-  ///     help screen. If `columns` is `nil`, uses the current terminal
-  ///     width, or a default value of `80` if the terminal width is not
-  ///     available.
+  ///   - columns: The column width to use when wrapping long line in the help
+  ///     screen. If `columns` is `nil`, uses the current terminal width, or a
+  ///     default value of `80` if the terminal width is not available.
   /// - Returns: A message that can be displayed to the user.
   public static func fullMessage(
     for error: Error,
@@ -148,10 +149,9 @@ extension ParsableArguments {
   /// - Parameters:
   ///   - includeHidden: Include hidden help information in the generated
   ///     message.
-  ///   - columns: The column width to use when wrapping long line in the
-  ///     help screen. If `columns` is `nil`, uses the current terminal
-  ///     width, or a default value of `80` if the terminal width is not
-  ///     available.
+  ///   - columns: The column width to use when wrapping long line in the help
+  ///     screen. If `columns` is `nil`, uses the current terminal width, or a
+  ///     default value of `80` if the terminal width is not available.
   /// - Returns: The full help screen for this type.
   public static func helpMessage(
     includeHidden: Bool = false,
@@ -193,14 +193,14 @@ extension ParsableArguments {
     }
   }
 
-  /// Terminates execution with a message and exit code that is appropriate
-  /// for the given error.
+  /// Terminates execution with a message and exit code that is appropriate for
+  /// the given error.
   ///
   /// If the `error` parameter is `nil`, this method prints nothing and exits
-  /// with code `EXIT_SUCCESS`. If `error` represents a help request or
-  /// another `CleanExit` error, this method prints help information and
-  /// exits with code `EXIT_SUCCESS`. Otherwise, this method prints a relevant
-  /// error message and exits with code `EX_USAGE` or `EXIT_FAILURE`.
+  /// with code `EXIT_SUCCESS`. If `error` represents a help request or another
+  /// `CleanExit` error, this method prints help information and exits with code
+  /// `EXIT_SUCCESS`. Otherwise, this method prints a relevant error message and
+  /// exits with code `EX_USAGE` or `EXIT_FAILURE`.
   ///
   /// - Parameter error: The error to use when exiting, if any.
   public static func exit(
@@ -269,8 +269,8 @@ func nilOrValue(_ value: Any) -> Any? {
   }
 }
 
-/// Existential protocol for property wrappers, so that they can provide
-/// the argument set that they define.
+/// Existential protocol for property wrappers, so that they can provide the
+/// argument set that they define.
 protocol ArgumentSetProvider {
   func argumentSet(for key: InputKey) -> ArgumentSet
 

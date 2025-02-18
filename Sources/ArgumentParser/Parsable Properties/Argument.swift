@@ -11,8 +11,8 @@
 
 /// A property wrapper that represents a positional command-line argument.
 ///
-/// Use the `@Argument` wrapper to define a property of your custom command as
-/// a positional argument. A *positional argument* for a command-line tool is
+/// Use the `@Argument` wrapper to define a property of your custom command as a
+/// positional argument. A *positional argument* for a command-line tool is
 /// specified without a label and must appear in declaration order. `@Argument`
 /// properties with `Optional` type or a default value are optional for the user
 /// of your command-line tool.
@@ -33,9 +33,9 @@
 /// }
 /// ```
 ///
-/// You can call this program with just a name or with a name and a
-/// greeting. When you supply both arguments, the first argument is always
-/// treated as the name, due to the order of the property declarations.
+/// You can call this program with just a name or with a name and a greeting.
+/// When you supply both arguments, the first argument is always treated as the
+/// name, due to the order of the property declarations.
 ///
 ///     $ greet Nadia
 ///     Hello Nadia!
@@ -110,8 +110,8 @@ extension Argument: DecodableParsedWrapper where Value: Decodable {}
 public struct ArgumentArrayParsingStrategy: Hashable {
   internal var base: ArgumentDefinition.ParsingStrategy
 
-  /// Parse only unprefixed values from the command-line input, ignoring
-  /// any inputs that have a dash prefix; this is the default strategy.
+  /// Parse only unprefixed values from the command-line input, ignoring any
+  /// inputs that have a dash prefix; this is the default strategy.
   ///
   /// `remaining` is the default parsing strategy for argument arrays.
   ///
@@ -159,8 +159,8 @@ public struct ArgumentArrayParsingStrategy: Hashable {
 
   /// After parsing, capture all unrecognized inputs in this argument array.
   ///
-  /// You can use the `allUnrecognized` parsing strategy to suppress
-  /// "unexpected argument" errors or to capture unrecognized inputs for further
+  /// You can use the `allUnrecognized` parsing strategy to suppress "unexpected
+  /// argument" errors or to capture unrecognized inputs for further
   /// processing.
   ///
   /// For example, the `Example` command defined below has an `other` array that
@@ -232,8 +232,8 @@ public struct ArgumentArrayParsingStrategy: Hashable {
   /// array from capturing any input. In particular, the
   /// ``SingleValueParsingStrategy/unconditional``,
   /// ``ArrayParsingStrategy/unconditionalSingleValue``, and
-  /// ``ArrayParsingStrategy/remaining`` parsing strategies can all consume
-  /// the terminator as part of their values.
+  /// ``ArrayParsingStrategy/remaining`` parsing strategies can all consume the
+  /// terminator as part of their values.
   ///
   /// - Note: This parsing strategy can be surprising for users, since it
   ///   changes the behavior of the `--` terminator. Prefer ``remaining``
@@ -283,8 +283,8 @@ public struct ArgumentArrayParsingStrategy: Hashable {
   /// --verbose
   /// ```
   ///
-  /// With the `captureForPassthrough` parsing strategy, the `--` terminator
-  /// is included in the captured values.
+  /// With the `captureForPassthrough` parsing strategy, the `--` terminator is
+  /// included in the captured values.
   ///
   /// ```
   /// $ example --verbose one two -- --other
@@ -297,9 +297,9 @@ public struct ArgumentArrayParsingStrategy: Hashable {
   /// - Note: This parsing strategy can be surprising for users, particularly
   ///   when combined with options and flags. Prefer ``remaining`` or
   ///   ``allUnrecognized`` whenever possible, since users can always terminate
-  ///   options and flags with the `--` terminator. With the `remaining`
-  ///   parsing strategy, the input `--verbose -- one two --other` would have
-  ///   the same result as the first example above.
+  ///   options and flags with the `--` terminator. With the `remaining` parsing
+  ///   strategy, the input `--verbose -- one two --other` would have the same
+  ///   result as the first example above.
   public static var captureForPassthrough: ArgumentArrayParsingStrategy {
     self.init(base: .allRemainingInput)
   }
@@ -319,13 +319,14 @@ extension Argument where Value: ExpressibleByArgument {
   ///
   /// This method is called to initialize an `Argument` with a default value
   /// such as:
+  ///
   /// ```swift
   /// @Argument var foo: String = "bar"
   /// ```
   ///
   /// - Parameters:
   ///   - wrappedValue: A default value to use for this property, provided
-  ///   implicitly by the compiler during property wrapper initialization.
+  ///     implicitly by the compiler during property wrapper initialization.
   ///   - help: Information about how to use this argument.
   ///   - completion: Kind of completion provided to the user for this option.
   public init(
@@ -352,6 +353,7 @@ extension Argument where Value: ExpressibleByArgument {
   ///
   /// This method is called to initialize an `Argument` without a default value
   /// such as:
+  ///
   /// ```swift
   /// @Argument var foo: String
   /// ```
@@ -386,6 +388,7 @@ extension Argument {
   ///
   /// This method is called to initialize an `Argument` with a default value
   /// such as:
+  ///
   /// ```swift
   /// @Argument(transform: baz)
   /// var foo: String = "bar"
@@ -423,7 +426,9 @@ extension Argument {
 
   /// Creates a property with no default value, parsing with the given closure.
   ///
-  /// This method is called to initialize an `Argument` with no default value such as:
+  /// This method is called to initialize an `Argument` with no default value
+  /// such as:
+  ///
   /// ```swift
   /// @Argument(transform: baz)
   /// var foo: String
@@ -679,6 +684,7 @@ extension Argument {
   ///
   /// This method is called to initialize an array `Argument` with no default
   /// value such as:
+  ///
   /// ```swift
   /// @Argument()
   /// var foo: [String]
@@ -686,7 +692,7 @@ extension Argument {
   ///
   /// - Parameters:
   ///   - parsingStrategy: The behavior to use when parsing multiple values from
-  ///   the command-line arguments.
+  ///     the command-line arguments.
   ///   - help: Information about how to use this argument.
   ///   - completion: Kind of completion provided to the user for this option.
   public init<T>(
@@ -752,6 +758,7 @@ extension Argument {
   ///
   /// This method is called to initialize an array `Argument` with no default
   /// value such as:
+  ///
   /// ```swift
   /// @Argument(transform: baz)
   /// var foo: [String]

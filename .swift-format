@@ -21,6 +21,7 @@
   },
   "prioritizeKeepingFunctionOutputTogether" : false,
   "respectsExistingLineBreaks" : true,
+  "reflowDocumentationComments" : true,
   "rules" : {
     "AllPublicDeclarationsHaveDocumentation" : false,
     "AlwaysUseLiteralForEmptyCollectionInit" : true,

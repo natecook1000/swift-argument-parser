@@ -9,8 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// A type that represents the different possible flags to be used by a
-/// `@Flag` property.
+/// A type that represents the different possible flags to be used by a `@Flag`
+/// property.
 ///
 /// For example, the `Size` enumeration declared here can be used as the type of
 /// a `@Flag` property:

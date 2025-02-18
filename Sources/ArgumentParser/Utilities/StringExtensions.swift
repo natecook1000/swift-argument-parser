@@ -91,8 +91,8 @@ extension StringProtocol where SubSequence == Substring {
     }
   }
 
-  /// Returns a new string with the camel-case-based words of this string
-  /// split by the specified separator.
+  /// Returns a new string with the camel-case-based words of this string split
+  /// by the specified separator.
   ///
   /// Examples:
   ///
@@ -130,7 +130,8 @@ extension StringProtocol where SubSequence == Substring {
     return result
   }
 
-  /// Returns the edit distance between this string and the provided target string.
+  /// Returns the edit distance between this string and the provided target
+  /// string.
   ///
   /// Uses the Levenshtein distance algorithm internally.
   ///

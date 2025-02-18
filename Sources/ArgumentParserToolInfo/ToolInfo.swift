@@ -14,7 +14,8 @@ extension Collection {
   fileprivate var nonEmpty: Self? { isEmpty ? nil : self }
 }
 
-/// Header used to validate serialization version of an encoded ToolInfo struct.
+/// Header used to validate serialization version of an encoded ToolInfo
+/// struct.
 public struct ToolInfoHeader: Decodable {
   /// A sentinel value indicating the version of the ToolInfo struct used to
   /// generate the serialized form.

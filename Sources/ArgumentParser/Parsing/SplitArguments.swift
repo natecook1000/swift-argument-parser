@@ -30,8 +30,8 @@ enum ParsedArgument: Equatable, CustomStringConvertible {
       : .nameWithValue(name, String(value))
   }
 
-  /// An array of short arguments and their indices in the original base
-  /// name, if this argument could be a combined pack of short arguments.
+  /// An array of short arguments and their indices in the original base name,
+  /// if this argument could be a combined pack of short arguments.
   ///
   /// For `subarguments` to be non-empty:
   ///
@@ -78,8 +78,8 @@ enum ParsedArgument: Equatable, CustomStringConvertible {
 
 /// A collection of parsed command-line arguments.
 ///
-/// This is a flat list of *values* and *options*. E.g. the
-/// arguments `["--foo", "bar"]` would be parsed into
+/// This is a flat list of *values* and *options*. E.g. the arguments
+/// `["--foo", "bar"]` would be parsed into
 /// `[.option(.name(.long("foo"))), .value("bar")]`.
 struct SplitArguments {
   struct Element: Equatable {
@@ -332,10 +332,10 @@ extension SplitArguments {
 
   /// Pops the element immediately after the given index, if it is a `.value`.
   ///
-  /// This is used to get the next value in `-fb name` where `name` is the
-  /// value for `-f`, or `--foo name` where `name` is the value for `--foo`.
-  /// If `--foo` expects a value, an input of `--foo --bar name` will return
-  /// `nil`, since the option `--bar` comes before the value `name`.
+  /// This is used to get the next value in `-fb name` where `name` is the value
+  /// for `-f`, or `--foo name` where `name` is the value for `--foo`. If
+  /// `--foo` expects a value, an input of `--foo --bar name` will return `nil`,
+  /// since the option `--bar` comes before the value `name`.
   mutating func popNextElementIfValue(after origin: InputOrigin.Element) -> (
     InputOrigin.Element, String
   )? {
@@ -360,7 +360,8 @@ extension SplitArguments {
 
   /// Pops the next `.value` after the given index.
   ///
-  /// This is used to get the next value in `-f -b name` where `name` is the value of `-f`.
+  /// This is used to get the next value in `-f -b name` where `name` is the
+  /// value of `-f`.
   mutating func popNextValue(
     after origin: InputOrigin.Element
   ) -> (InputOrigin.Element, String)? {
@@ -379,11 +380,11 @@ extension SplitArguments {
 
   /// Pops the element after the given index as a value.
   ///
-  /// This will re-interpret `.option` and `.terminator` as values, i.e.
-  /// read from the `originalInput`.
+  /// This will re-interpret `.option` and `.terminator` as values, i.e. read
+  /// from the `originalInput`.
   ///
-  /// For an input such as `--a --b foo`, if passed the origin of `--a`,
-  /// this will first pop the value `--b`, then the value `foo`.
+  /// For an input such as `--a --b foo`, if passed the origin of `--a`, this
+  /// will first pop the value `--b`, then the value `foo`.
   mutating func popNextElementAsValue(after origin: InputOrigin.Element) -> (
     InputOrigin.Element, String
   )? {
@@ -478,10 +479,11 @@ extension SplitArguments {
   /// - Note: This may remove multiple elements.
   ///
   /// For combined _short_ arguments such as `-ab`, these will gets parsed into
-  /// 3 elements: The _long with short dash_ `ab`, and 2 _short_ `a` and `b`. All of these
-  /// will have the same `inputIndex` but different `subIndex`. When either of the short ones
-  /// is removed, that will remove the _long with short dash_ as well. Likewise, if the
-  /// _long with short dash_ is removed, that will remove both of the _short_ elements.
+  /// 3 elements: The _long with short dash_ `ab`, and 2 _short_ `a` and `b`.
+  /// All of these will have the same `inputIndex` but different `subIndex`.
+  /// When either of the short ones is removed, that will remove the _long with
+  /// short dash_ as well. Likewise, if the _long with short dash_ is removed,
+  /// that will remove both of the _short_ elements.
   mutating func remove(at position: Index) {
     guard !isEmpty else { return }
 
@@ -640,7 +642,6 @@ extension SplitArguments {
   /// Parses the given input into an array of `Element`.
   ///
   /// - Parameter arguments: The input from the command line.
-  ///
   /// - Throws: If parsing fails.
   init(arguments: [String]) throws {
     self.init(originalInput: arguments)
@@ -677,11 +678,10 @@ extension ParsedArgument {
     try self.init(
       longArgRemainder: remainder,
       makeName: {
-        /// If an argument has a single dash and single character,
-        /// followed by a value, treat it as a short name.
-        ///     `-c=1`      ->  `Name.short("c")`
-        /// Otherwise, treat it as a long name with single dash.
-        ///     `-count=1`  ->  `Name.longWithSingleDash("count")`
+        /// If an argument has a single dash and single character, followed by a
+        /// value, treat it as a short name. `-c=1`      ->  `Name.short("c")`
+        /// Otherwise, treat it as a long name with single dash. `-count=1`  ->
+        /// `Name.longWithSingleDash("count")`
         if let first = $0.first, $0.count == 1 {
           return .short(first)
         } else {

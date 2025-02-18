@@ -209,8 +209,8 @@ internal struct HelpGenerator {
     var titledSections: [String: [Section.Element]] = [:]
     var sectionTitles: [String] = []
 
-    /// Start with a full slice of the ArgumentSet so we can peel off one or
-    /// more elements at a time.
+    /// Start with a full slice of the ArgumentSet so we can peel off one or more
+    /// elements at a time.
     var args = commandStack.argumentsForHelp(visibility: visibility)[...]
     while let arg = args.popFirst() {
       assert(arg.help.visibility.isAtLeastAsVisible(as: visibility))
@@ -514,8 +514,8 @@ extension BidirectionalCollection where Element == ParsableCommand.Type {
     )
   }
 
-  /// Returns the ArgumentSet for the last command in this stack, including
-  /// help and version flags, when appropriate.
+  /// Returns the ArgumentSet for the last command in this stack, including help
+  /// and version flags, when appropriate.
   func argumentsForHelp(visibility: ArgumentVisibility) -> ArgumentSet {
     guard
       var arguments = self.last.map({

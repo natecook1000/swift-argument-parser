@@ -67,10 +67,9 @@ extension ArgumentSet {
 
 // swift-format-ignore: BeginDocumentationCommentWithOneLineSummary
 // https://github.com/swiftlang/swift-format/issues/925
-/// For positional arguments to be valid, there must be at most one
-/// positional array argument, and it must be the last positional argument
-/// in the argument list. Any other configuration leads to ambiguity in
-/// parsing the arguments.
+/// For positional arguments to be valid, there must be at most one positional
+/// array argument, and it must be the last positional argument in the argument
+/// list. Any other configuration leads to ambiguity in parsing the arguments.
 struct PositionalArgumentsValidator: ParsableArgumentsValidator {
   struct Error: ParsableArgumentsValidatorError, CustomStringConvertible {
     let repeatedPositionalArgument: String
@@ -165,8 +164,8 @@ struct ParsableArgumentsCodingKeyValidator: ParsableArgumentsValidator {
     }
   }
 
-  /// This error indicates that an option, a flag, or an argument of
-  /// a `ParsableArguments` is defined without a corresponding `CodingKey`.
+  /// This error indicates that an option, a flag, or an argument of a
+  /// `ParsableArguments` is defined without a corresponding `CodingKey`.
   struct MissingKeysError: ParsableArgumentsValidatorError,
     CustomStringConvertible
   {
@@ -252,7 +251,8 @@ struct ParsableArgumentsCodingKeyValidator: ParsableArgumentsValidator {
   }
 }
 
-/// Ensure argument names are unique within a `ParsableArguments` or `ParsableCommand`.
+/// Ensure argument names are unique within a `ParsableArguments` or
+/// `ParsableCommand`.
 struct ParsableArgumentsUniqueNamesValidator: ParsableArgumentsValidator {
   struct Error: ParsableArgumentsValidatorError, CustomStringConvertible {
     var duplicateNames: [String: Int] = [:]

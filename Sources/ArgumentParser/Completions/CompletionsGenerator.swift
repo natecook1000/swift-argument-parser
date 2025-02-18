@@ -135,7 +135,8 @@ struct CompletionsGenerator {
     }
   }
 
-  /// Generates a shell completion script for this generator's shell and command.
+  /// Generates a shell completion script for this generator's shell and
+  /// command.
   func generateCompletionScript() -> String {
     CompletionShell._requesting.withLock { $0 = shell }
     switch shell {
@@ -152,8 +153,8 @@ struct CompletionsGenerator {
 }
 
 extension ArgumentDefinition {
-  /// Returns a string with the arguments for the callback to generate custom completions for
-  /// this argument.
+  /// Returns a string with the arguments for the callback to generate custom
+  /// completions for this argument.
   func customCompletionCall(_ commands: [ParsableCommand.Type]) -> String {
     let subcommandNames = commands.dropFirst().map { $0._commandName }.joined(
       separator: " ")

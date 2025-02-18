@@ -60,9 +60,9 @@
 ///     }
 ///
 /// Instead of using the name of the `operation` property as the flag in this
-/// case, the two cases of the `Operation` enumeration become valid flags.
-/// The `operation` property is neither optional nor given a default value, so
-/// one of the two flags is required.
+/// case, the two cases of the `Operation` enumeration become valid flags. The
+/// `operation` property is neither optional nor given a default value, so one
+/// of the two flags is required.
 ///
 ///     $ math --add
 ///     Time to add!
@@ -83,8 +83,8 @@ public struct Flag<Value>: Decodable, ParsedWrapper {
   /// This initializer works around a quirk of property wrappers, where the
   /// compiler will not see no-argument initializers in extensions.
   ///
-  /// Explicitly marking this initializer unavailable means that when `Value`
-  /// is a type supported by `Flag` like `Bool` or `EnumerableFlag`, the
+  /// Explicitly marking this initializer unavailable means that when `Value` is
+  /// a type supported by `Flag` like `Bool` or `EnumerableFlag`, the
   /// appropriate overload will be selected instead.
   ///
   /// ```swift
@@ -198,8 +198,8 @@ public struct FlagExclusivity: Hashable {
 extension FlagExclusivity: Sendable {}
 
 extension Flag where Value == Bool? {
-  /// Creates a Boolean property that reads its value from the presence of
-  /// one or more inverted flags.
+  /// Creates a Boolean property that reads its value from the presence of one
+  /// or more inverted flags.
   ///
   /// Use this initializer to create an optional Boolean flag with an on/off
   /// pair. With the following declaration, for example, the user can specify
@@ -256,9 +256,12 @@ extension Flag where Value == Bool? {
 }
 
 extension Flag where Value == Bool {
-  /// Creates a Boolean property with an optional default value, intended to be called by other constructors to centralize logic.
+  /// Creates a Boolean property with an optional default value, intended to be
+  /// called by other constructors to centralize logic.
   ///
-  /// This private `init` allows us to expose multiple other similar constructors to allow for standard default property initialization while reducing code duplication.
+  /// This private `init` allows us to expose multiple other similar
+  /// constructors to allow for standard default property initialization while
+  /// reducing code duplication.
   private init(
     name: NameSpecification,
     initial: Bool?,
@@ -270,10 +273,12 @@ extension Flag where Value == Bool {
       })
   }
 
-  /// Creates a Boolean property with default value provided by standard Swift default value syntax that reads its value from the presence of a flag.
+  /// Creates a Boolean property with default value provided by standard Swift
+  /// default value syntax that reads its value from the presence of a flag.
   ///
   /// - Parameters:
-  ///   - wrappedValue: A default value to use for this property, provided implicitly by the compiler during property wrapper initialization.
+  ///   - wrappedValue: A default value to use for this property, provided
+  ///     implicitly by the compiler during property wrapper initialization.
   ///   - name: A specification for what names are allowed for this flag.
   ///   - help: Information about how to use this flag.
   public init(
@@ -288,9 +293,12 @@ extension Flag where Value == Bool {
     )
   }
 
-  /// Creates a property with an optional default value, intended to be called by other constructors to centralize logic.
+  /// Creates a property with an optional default value, intended to be called
+  /// by other constructors to centralize logic.
   ///
-  /// This private `init` allows us to expose multiple other similar constructors to allow for standard default property initialization while reducing code duplication.
+  /// This private `init` allows us to expose multiple other similar
+  /// constructors to allow for standard default property initialization while
+  /// reducing code duplication.
   private init(
     name: NameSpecification,
     initial: Bool?,
@@ -311,10 +319,14 @@ extension Flag where Value == Bool {
       })
   }
 
-  /// Creates a Boolean property with default value provided by standard Swift default value syntax that reads its value from the presence of one or more inverted flags.
+  /// Creates a Boolean property with default value provided by standard Swift
+  /// default value syntax that reads its value from the presence of one or more
+  /// inverted flags.
   ///
-  /// Use this initializer to create a Boolean flag with an on/off pair.
-  /// With the following declaration, for example, the user can specify either `--use-https` or `--no-use-https` to set the `useHTTPS` flag to `true` or `false`, respectively.
+  /// Use this initializer to create a Boolean flag with an on/off pair. With
+  /// the following declaration, for example, the user can specify either
+  /// `--use-https` or `--no-use-https` to set the `useHTTPS` flag to `true` or
+  /// `false`, respectively.
   ///
   /// ```swift
   /// @Flag(inversion: .prefixedNo)
@@ -325,8 +337,10 @@ extension Flag where Value == Bool {
   ///   - wrappedValue: A default value to use for this property, provided
   ///     implicitly by the compiler during property wrapper initialization.
   ///   - name: A specification for what names are allowed for this flag.
-  ///   - inversion: The method for converting this flag's name into an on/off pair.
-  ///   - exclusivity: The behavior to use when an on/off pair of flags is specified.
+  ///   - inversion: The method for converting this flag's name into an on/off
+  ///     pair.
+  ///   - exclusivity: The behavior to use when an on/off pair of flags is
+  ///     specified.
   ///   - help: Information about how to use this flag.
   public init(
     wrappedValue: Bool,
@@ -344,10 +358,13 @@ extension Flag where Value == Bool {
     )
   }
 
-  /// Creates a Boolean property with no default value that reads its value from the presence of one or more inverted flags.
+  /// Creates a Boolean property with no default value that reads its value from
+  /// the presence of one or more inverted flags.
   ///
-  /// Use this initializer to create a Boolean flag with an on/off pair.
-  /// With the following declaration, for example, the user can specify either `--use-https` or `--no-use-https` to set the `useHTTPS` flag to `true` or `false`, respectively.
+  /// Use this initializer to create a Boolean flag with an on/off pair. With
+  /// the following declaration, for example, the user can specify either
+  /// `--use-https` or `--no-use-https` to set the `useHTTPS` flag to `true` or
+  /// `false`, respectively.
   ///
   /// ```swift
   /// @Flag(inversion: .prefixedNo)
@@ -356,8 +373,10 @@ extension Flag where Value == Bool {
   ///
   /// - Parameters:
   ///   - name: A specification for what names are allowed for this flag.
-  ///   - inversion: The method for converting this flag's name into an on/off pair.
-  ///   - exclusivity: The behavior to use when an on/off pair of flags is specified.
+  ///   - inversion: The method for converting this flag's name into an on/off
+  ///     pair.
+  ///   - exclusivity: The behavior to use when an on/off pair of flags is
+  ///     specified.
   ///   - help: Information about how to use this flag.
   public init(
     name: NameSpecification = .long,
@@ -376,8 +395,8 @@ extension Flag where Value == Bool {
 }
 
 extension Flag where Value == Int {
-  /// Creates an integer property that gets its value from the number of times
-  /// a flag appears.
+  /// Creates an integer property that gets its value from the number of times a
+  /// flag appears.
   ///
   /// This property defaults to a value of zero.
   ///
@@ -398,9 +417,12 @@ extension Flag where Value == Int {
 // - MARK: EnumerableFlag
 
 extension Flag where Value: EnumerableFlag {
-  /// Creates a property with an optional default value, intended to be called by other constructors to centralize logic.
+  /// Creates a property with an optional default value, intended to be called
+  /// by other constructors to centralize logic.
   ///
-  /// This private `init` allows us to expose multiple other similar constructors to allow for standard default property initialization while reducing code duplication.
+  /// This private `init` allows us to expose multiple other similar
+  /// constructors to allow for standard default property initialization while
+  /// reducing code duplication.
   private init(
     initial: Value?,
     exclusivity: FlagExclusivity,
@@ -462,11 +484,14 @@ extension Flag where Value: EnumerableFlag {
       })
   }
 
-  /// Creates a property with a default value provided by standard Swift default value syntax that gets its value from the presence of a flag.
+  /// Creates a property with a default value provided by standard Swift default
+  /// value syntax that gets its value from the presence of a flag.
   ///
-  /// Use this initializer to customize the name and number of states further than using a `Bool`.
-  /// To use, define an `EnumerableFlag` enumeration with a case for each state, and use that as the type for your flag.
-  /// In this case, the user can specify either `--use-production-server` or `--use-development-server` to set the flag's value.
+  /// Use this initializer to customize the name and number of states further
+  /// than using a `Bool`. To use, define an `EnumerableFlag` enumeration with a
+  /// case for each state, and use that as the type for your flag. In this case,
+  /// the user can specify either `--use-production-server` or
+  /// `--use-development-server` to set the flag's value.
   ///
   /// ```swift
   /// enum ServerChoice: EnumerableFlag {
@@ -478,7 +503,8 @@ extension Flag where Value: EnumerableFlag {
   /// ```
   ///
   /// - Parameters:
-  ///   - wrappedValue: A default value to use for this property, provided implicitly by the compiler during property wrapper initialization.
+  ///   - wrappedValue: A default value to use for this property, provided
+  ///     implicitly by the compiler during property wrapper initialization.
   ///   - exclusivity: The behavior to use when multiple flags are specified.
   ///   - help: Information about how to use this flag.
   public init(
@@ -493,11 +519,14 @@ extension Flag where Value: EnumerableFlag {
     )
   }
 
-  /// Creates a property with no default value that gets its value from the presence of a flag.
+  /// Creates a property with no default value that gets its value from the
+  /// presence of a flag.
   ///
-  /// Use this initializer to customize the name and number of states further than using a `Bool`.
-  /// To use, define an `EnumerableFlag` enumeration with a case for each state, and use that as the type for your flag.
-  /// In this case, the user can specify either `--use-production-server` or `--use-development-server` to set the flag's value.
+  /// Use this initializer to customize the name and number of states further
+  /// than using a `Bool`. To use, define an `EnumerableFlag` enumeration with a
+  /// case for each state, and use that as the type for your flag. In this case,
+  /// the user can specify either `--use-production-server` or
+  /// `--use-development-server` to set the flag's value.
   ///
   /// ```swift
   /// enum ServerChoice: EnumerableFlag {
@@ -524,8 +553,8 @@ extension Flag where Value: EnumerableFlag {
 }
 
 extension Flag {
-  /// Creates a property that gets its value from the presence of a flag,
-  /// where the allowed flags are defined by an `EnumerableFlag` type.
+  /// Creates a property that gets its value from the presence of a flag, where
+  /// the allowed flags are defined by an `EnumerableFlag` type.
   public init<Element>(
     exclusivity: FlagExclusivity = .exclusive,
     help: ArgumentHelp? = nil
@@ -564,9 +593,12 @@ extension Flag {
       })
   }
 
-  /// Creates an array property with an optional default value, intended to be called by other constructors to centralize logic.
+  /// Creates an array property with an optional default value, intended to be
+  /// called by other constructors to centralize logic.
   ///
-  /// This private `init` allows us to expose multiple other similar constructors to allow for standard default property initialization while reducing code duplication.
+  /// This private `init` allows us to expose multiple other similar
+  /// constructors to allow for standard default property initialization while
+  /// reducing code duplication.
   private init<Element>(
     initial: [Element]?,
     help: ArgumentHelp? = nil
@@ -605,9 +637,9 @@ extension Flag {
       })
   }
 
-  /// Creates an array property that gets its values from the presence of
-  /// zero or more flags, where the allowed flags are defined by an
-  /// `EnumerableFlag` type.
+  /// Creates an array property that gets its values from the presence of zero
+  /// or more flags, where the allowed flags are defined by an `EnumerableFlag`
+  /// type.
   ///
   /// This property has an empty array as its default value.
   ///
@@ -625,9 +657,13 @@ extension Flag {
     )
   }
 
-  /// Creates an array property with no default value that gets its values from the presence of zero or more flags, where the allowed flags are defined by an `EnumerableFlag` type.
+  /// Creates an array property with no default value that gets its values from
+  /// the presence of zero or more flags, where the allowed flags are defined by
+  /// an `EnumerableFlag` type.
   ///
-  /// This method is called to initialize an array `Flag` with no default value such as:
+  /// This method is called to initialize an array `Flag` with no default value
+  /// such as:
+  ///
   /// ```swift
   /// @Flag
   /// var foo: [CustomFlagType]

@@ -29,8 +29,8 @@
 /// `2`, while the value for `verbose` will come from index `1`, sub-index `0`.
 struct InputOrigin: Equatable, ExpressibleByArrayLiteral {
   enum Element: Comparable, Hashable {
-    /// The input value came from a property's default value, not from a
-    /// command line argument.
+    /// The input value came from a property's default value, not from a command
+    /// line argument.
     case defaultValue
 
     /// The input value came from the specified index in the argument string.

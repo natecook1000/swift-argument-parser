@@ -314,7 +314,8 @@ final class ParsableArgumentsValidationTests: XCTestCase {
       as? ParsableArgumentsUniqueNamesValidator.Error
     {
       XCTAssert(
-        /// The `Mirror` reflects the properties `foo` and `bar` in a random order each time it's built.
+        /// The `Mirror` reflects the properties `foo` and `bar` in a random order
+        /// each time it's built.
         error.description == """
           Multiple (2) `Option` or `Flag` arguments are named \"--bar\".
           Multiple (2) `Option` or `Flag` arguments are named \"--foo\".
